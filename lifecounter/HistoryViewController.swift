@@ -7,15 +7,15 @@
 
 import UIKit
 
-class HistoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class HistoryViewController: UIViewController, UITableViewDataSource {
     
-    @IBOutlet weak var tableView: UITableView!
     var history: [String] = []
+    
+    @IBOutlet weak var historyTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.dataSource = self
-        tableView.delegate = self
+        historyTableView.register(UITableViewCell.self, forCellReuseIdentifier: "HistoryCell")
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

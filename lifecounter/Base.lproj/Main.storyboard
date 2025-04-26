@@ -94,7 +94,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="Ccv-c4-iEa"/>
                     <connections>
-                        <outlet property="historyTableView" destination="xzc-Ll-GAf" id="pPD-HM-bKM"/>
+                        <outlet property="historyTableView" destination="xzc-Ll-GAf" id="SvA-3l-qPz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Ym-eq-fcW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
