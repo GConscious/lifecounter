@@ -9,90 +9,114 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    
+    var players: [UILabel] = []
+    var scores : [Int] = []
+    var history: [String] = []
+    
     //Labels
-    @IBOutlet weak var lifeCountLabelP1: UILabel!
-    @IBOutlet weak var lifeCountLabelP2: UILabel!
     
-    // Increment buttons
-    @IBOutlet weak var lifeCountaddBtnP1: UIButton!
-    @IBOutlet weak var lifeCountaddBtnP2: UIButton!
-    
-    //Decrement buttons
-    @IBOutlet weak var lifeCountMinusBtnP1: UIButton!
-    @IBOutlet weak var lifeCountMinusBtnP2: UIButton!
+    @IBOutlet weak var playersStackView: UIStackView!
+    @IBOutlet weak var addPlayerButton: UIButton!
+    @IBOutlet weak var historyButton: UIButton!
+    @IBOutlet weak var countInput: UITextField!
+    @IBOutlet weak var historyStackView: UIStackView!
 
-    //+5 buttons
-    @IBOutlet weak var lifeCountadd5BtnP1: UIButton!
-    @IBOutlet weak var lifeCountadd5BtnP2: UIButton!
-    
-    //-5 buttons
-    @IBOutlet weak var lifeCountMinus5BtnP1: UIButton!
-    @IBOutlet weak var lifeCountMinus5BtnP2: UIButton!
-    
     //Game status label
     @IBOutlet weak var gameOverStatus: UILabel!
-
-    var p1Count = 20
-    var p2Count = 20
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        for i in 1...4 {
+            addPlayer("Player \(i)")
+        }
     }
     
-    @IBAction func addOneP1(_ sender: Any) {
-        p1Count += 1
-        lifeCountLabelP1.text = "Player 1: \(p1Count)"
-        checkScore()
+    func addPlayer(_ name: String) {
+        if players.count >= 8 {
+            return
+        }
+        
+        let playerCount = players.count + 1
+        let playerLabel = UILabel()
+        playerLabel.text = "Player \(playerCount): 20" // Include the initial score
+        playerLabel.textAlignment = .center
+        playerLabel.font = UIFont.systemFont(ofSize: 18)
+        playersStackView.addArrangedSubview(playerLabel)
+        players.append(playerLabel)
+        
+        scores.append(20)
+
+        // Add button
+        let addButton = UIButton(type: .system)
+        addButton.setTitle("+", for: .normal)
+        addButton.tag = playerCount - 1
+        addButton.addTarget(self, action: #selector(addLife), for: .touchUpInside)
+        playersStackView.addArrangedSubview(addButton)
+        
+        // Subtract button
+        let subtractButton = UIButton(type: .system)
+        subtractButton.setTitle("-", for: .normal)
+        subtractButton.tag = playerCount - 1
+        subtractButton.addTarget(self, action: #selector(decreaseLife), for: .touchUpInside)
+        playersStackView.addArrangedSubview(subtractButton)
+        
+        // Update the game status label
+        gameOverStatus.text = ""
     }
     
-    @IBAction func addOneP2(_ sender: Any) {
-        p2Count += 1
-        lifeCountLabelP2.text = "Player 2: \(p2Count)"
-        checkScore()
+    //Implement the increase and decrease life functions
+    @objc func addLife(sender: UIButton) {
+        let playerIndex = sender.tag
+        if let count = Int(countInput.text ?? ""), count > 0 {
+            scores[playerIndex] += count
+            players[playerIndex].text = "Player \(playerIndex + 1): \(scores[playerIndex])"
+            checkScore()
+        }
     }
     
-    @IBAction func minusOneP1(_ sender: Any) {
-        p1Count -= 1
-        lifeCountLabelP1.text = "Player 1: \(p1Count)"
-        checkScore()
+    @objc func decreaseLife(sender: UIButton) {
+        let playerIndex = sender.tag
+        if let count = Int(countInput.text ?? ""), count > 0 {
+            scores[playerIndex] -= count
+            players[playerIndex].text = "Player \(playerIndex + 1): \(scores[playerIndex])"
+            checkScore()
+        }
     }
     
-    @IBAction func minusOneP2(_ sender: Any) {
-        p2Count -= 1
-        lifeCountLabelP2.text = "Player 2: \(p2Count)"
-        checkScore()
+    @IBAction func addPlayer(_ sender: UIButton) {
+        let playerCount = players.count + 1
+        let name = "Player \(playerCount)"
+        addPlayer(name)
+        if players.count == 8{
+            addPlayerButton.isEnabled = false
+        }
     }
     
-    @IBAction func add5P1(_ sender: Any) {
-        p1Count += 5
-        lifeCountLabelP1.text = "Player 1: \(p1Count)"
-        checkScore()
+    @IBAction func showHistory(_ sender: UIButton) {
+        performSegue(withIdentifier: "historySegue", sender: self)
     }
     
-    @IBAction func add5P2(_ sender: Any) {
-        p2Count += 5
-        lifeCountLabelP2.text = "Player 2: \(p2Count)"
-        checkScore()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "historySegue",
+           let destinationVC = segue.destination as? HistoryViewController {
+            destinationVC.history = history
+        }
     }
     
-    @IBAction func minus5P1(_ sender: Any) {
-        p1Count -= 5
-        lifeCountLabelP1.text = "Player 1: \(p1Count)"
-        checkScore()
-    }
     
-    @IBAction func minus5P2(_ sender: Any) {
-        p2Count -= 5
-        lifeCountLabelP2.text = "Player 2: \(p2Count)"
-        checkScore()
-    }
-    
+    //Implement checkScore function
     func checkScore() {
-        if p1Count <= 0 {
-            gameOverStatus.text = "Player 1 LOSES"
-        } else if p2Count <= 0 {
-            gameOverStatus.text = "Player 2 LOSES"
+        for (index, score) in scores.enumerated() {
+            if score <= 0 {
+                //Add to the history array
+                history.append("Player \(index + 1) has lost.")
+                gameOverStatus.text = "Player \(index + 1) loses"
+                gameOverStatus.isHidden = false
+                players[index].isHidden = true
+                break
+            }
         }
     }
     
